@@ -1,31 +1,24 @@
-const fs = require('fs');
-const path = require('path');
+// Basit AI Simülasyonu
 
-// Logs klasörünü oluştur
-const logDir = path.join(__dirname, '../logs');
-if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir);
-}
+exports.suggestCategory = async (description) => {
+    const desc = description.toLowerCase();
+    if (desc.includes('wifi') || desc.includes('internet')) return { category: 'Wi-Fi/Internet', confidence: 0.9 };
+    if (desc.includes('lms') || desc.includes('şifre')) return { category: 'LMS/Hesap', confidence: 0.8 };
+    if (desc.includes('lab') || desc.includes('projeksiyon')) return { category: 'Donanım', confidence: 0.85 };
+    return { category: 'Genel Destek', confidence: 0.5 };
+};
 
-const logFile = path.join(logDir, 'app.log');
+exports.suggestPriority = async (description) => {
+    const desc = description.toLowerCase();
+    if (desc.includes('acil') || desc.includes('sınav')) return { priority: 'high', confidence: 0.9 };
+    return { priority: 'medium', confidence: 0.6 };
+};
 
-function writeLog(level, message, data) {
-    const timestamp = new Date().toISOString();
-    const dataStr = data ? ` ${JSON.stringify(data)}` : '';
-    // DÜZELTME 1: Satır 15 backtick içine alındı
-    const logLine = `[${timestamp}] [${level}] ${message}${dataStr}`;
+exports.generateSummary = async (description) => {
+    return description.length > 50 ? description.substring(0, 47) + '...' : description;
+};
 
-    console.log(logLine); // Konsola yaz
-    fs.appendFileSync(logFile, logLine + '\n'); // Dosyaya yaz
-}
-
-module.exports = {
-    info: (msg, data) => writeLog('INFO', msg, data),
-    error: (msg, data) => writeLog('ERROR', msg, data),
-    warn: (msg, data) => writeLog('WARN', msg, data),
-    logAICall: (type, success, details) => writeLog('AI_CALL', type, { success, ...details }),
-    // DÜZELTME 2: Satır 27 `Ticket #${id}` ifadesi backtick içine alındı
-    logTicketCreation: (id, userId, title) => writeLog('TICKET_CREATED', `Ticket #${id}`, { userId, title }),
-    // DÜZELTME 3: Satır 28 `Ticket #${id}` ifadesi backtick içine alındı
-    logTicketStatusChange: (id, old, neu, by) => writeLog('STATUS_CHANGE', `Ticket #${id}`, { old, new: neu, by })
+exports.generateResponseDraft = async (description, category) => {
+    // DÜZELTME: 21. Satır backtick (`) içine alındı.
+    return `Merhaba, ${category} konusundaki probleminizi inceledik. İlgili birim yönlendirildi.`;
 };
