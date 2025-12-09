@@ -4,7 +4,7 @@
 
 **CampuSupport**, kampüs içinde yaşanan sorunları (Wi-Fi kopması, LMS erişim sorunları, yapı onarımları vb.) yönetmek için geliştirilmiş kapsamlı bir **Ticket Yönetim Sistemi**'dir.
 
-### Hafta 1 - Temel Özellikler
+### Bölüm 1 - Temel Özellikler
 - ✅ Kullanıcı kaydı ve girişi
 - ✅ Ticket oluşturma, listeleme, güncelleme
 - ✅ Rol tabanlı erişim kontrolü (Student, Support, Department, Admin)
@@ -12,7 +12,7 @@
 - ✅ Departman yönetimi
 - ✅ Basit filtreleme ve sıralama
 
-### Hafta 2 - AI & API Entegrasyonu
+### Bölüm 2 - AI & API Entegrasyonu
 - 🤖 **AI Destekli Kategori/Öncelik Önerisi** - OpenAI API ile otomatik sınıflandırma
 - 📧 **Harici Bildirim API'leri** - Email, Slack entegrasyonu
 - 🔄 **GitHub Workflow** - main, dev, feature branch'ları
