@@ -250,6 +250,19 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
+// Get Support Staff by Department (ATAMA İŞLEMİ İÇİN GEREKLİ)
+app.get('/api/users/support/:departmentId', (req, res) => {
+  const { departmentId } = req.params;
+  const query = `SELECT id, email FROM users WHERE role = 'support' AND department_id = ?`;
+  db.all(query, [departmentId], (err, rows) => {
+    if (err) {
+      logger.error('Error fetching support staff:', { error: err.message });
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(rows || []);
+  });
+});
+
 // ==================== TICKET ROUTES ====================
 
 // Get All Tickets
@@ -595,6 +608,18 @@ app.get('/api/departments/:id/analytics', (req, res) => {
   }
 });
 
+// ==================== DEBUG ROUTES ====================
+
+// DEBUG: Tüm kullanıcıları ve departmanlarını listele
+app.get('/api/debug/users', (req, res) => {
+  db.all("SELECT id, email, role, department_id FROM users", (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
 // ==================== ERROR HANDLING ====================
 
 // Error handling middleware
@@ -616,6 +641,7 @@ app.listen(PORT, () => {
   console.log(`\n🚀 CampuSupport Server Started`);
   console.log(`📍 URL: http://localhost:${PORT}`);
   console.log(`📝 API Docs: http://localhost:${PORT}/api-docs`);
+  console.log(`🔍 Debug Users: http://localhost:${PORT}/api/debug/users`);
   console.log(`📊 Database: ./database.db`);
   console.log(`📋 Logs: ./logs/app.log\n`);
 });
