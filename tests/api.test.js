@@ -116,7 +116,7 @@ describe('CampuSupport API Tests (Mock Implementation)', () => {
                         // console.log(`   -> Beklenen Status: ${testData.expectedStatus}`);
                     }
                     
-                    // Testi her zaman başarılı geçiriyoruz (Mock olduğu için)
+                    // Testi her zaman başarılı geçiriyoruz 
                     expect(true).toBe(true);
                 });
             });
