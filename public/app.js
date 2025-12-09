@@ -16,12 +16,48 @@ function setupEventListeners() {
   // Auth Forms
   document.getElementById('login-form').addEventListener('submit', handleLogin);
   document.getElementById('register-form').addEventListener('submit', handleRegister);
-
-  // New Ticket Form
   document.getElementById('new-ticket-form').addEventListener('submit', handleCreateTicket);
+
+  // Rol değiştiğinde Departman seçimini göster/gizle
+  const roleSelect = document.getElementById('register-role');
+  const deptSelect = document.getElementById('register-department');
+  
+  if(roleSelect && deptSelect) {
+      roleSelect.addEventListener('change', (e) => {
+          if (['support', 'department'].includes(e.target.value)) {
+              deptSelect.style.display = 'block';
+              deptSelect.required = true;
+              loadRegisterDepartments(); // Departmanları yükle
+          } else {
+              deptSelect.style.display = 'none';
+              deptSelect.required = false;
+          }
+      });
+  }
 }
 
-// Departmani yukle
+// Kayıt formu için departmanları yükle
+async function loadRegisterDepartments() {
+    try {
+        const response = await fetch(`${API_URL}/departments`);
+        const departments = await response.json();
+        const select = document.getElementById('register-department');
+        
+        // Mevcut seçenekleri temizle (ilk seçenek hariç)
+        while (select.options.length > 1) { select.remove(1); }
+
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.id;
+            option.textContent = dept.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Departmanlar yüklenemedi', error);
+    }
+}
+
+// Departmani yukle (Ticket Formu İçin)
 function initializeDepartments() {
   loadDepartments();
 }
@@ -78,13 +114,20 @@ async function handleRegister(e) {
   const password = document.getElementById('register-password').value;
   const student_id = document.getElementById('register-student-id').value;
   const role = document.getElementById('register-role').value;
+  const department_id = document.getElementById('register-department').value; // Departman ID'sini al
   const errorEl = document.getElementById('register-error');
 
   try {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, student_id, role })
+      body: JSON.stringify({ 
+          email, 
+          password, 
+          student_id, 
+          role,
+          department_id: department_id || null // Backend'e gönder
+      })
     });
 
     const data = await response.json();
@@ -178,7 +221,18 @@ function updateDashboardStats() {
 // Tickets
 async function loadTickets() {
   try {
-    const response = await fetch(`${API_URL}/tickets`);
+    let url = `${API_URL}/tickets`;
+    
+    // Eğer kullanıcı Support veya Departman ise, kendi departmanının ticketlarını görsün
+    if ((currentUser.role === 'support' || currentUser.role === 'department') && currentUser.department_id) {
+        url = `${API_URL}/departments/${currentUser.department_id}/tickets`;
+    } 
+    // Öğrenci ise kendi ticketlarını görsün
+    else if (currentUser.role === 'student') {
+        url = `${API_URL}/tickets/user/${currentUser.id}`;
+    }
+
+    const response = await fetch(url);
     allTickets = await response.json();
     filterTickets();
   } catch (error) {
@@ -214,11 +268,17 @@ function renderTickets() {
     const statusText = getStatusText(ticket.status);
     const priorityText = getPriorityText(ticket.priority);
 
+    // Ticket kime atanmış?
+    let assignedInfo = ticket.assigned_to ? `<span style="font-size:0.8rem; color:#e67e22; margin-left:10px;">👤 Atanan: ID ${ticket.assigned_to}</span>` : '';
+
     const ticketEl = document.createElement('div');
     ticketEl.className = 'ticket-item';
     ticketEl.innerHTML = `
       <div class="ticket-header">
-        <div class="ticket-title">#${ticket.id} - ${ticket.title}</div>
+        <div class="ticket-title">
+            #${ticket.id} - ${ticket.title} 
+            ${assignedInfo}
+        </div>
         <div>
           <span class="ticket-badge ${statusBadgeClass}">${statusText}</span>
           <span class="ticket-badge ${priorityBadgeClass}">${priorityText}</span>
@@ -235,7 +295,7 @@ function renderTickets() {
   });
 }
 
-// TICKET DETAY VE AI ENTEGRASYONU BURADA
+// TICKET DETAY
 async function viewTicketDetail(ticketId) {
   try {
     const response = await fetch(`${API_URL}/tickets/${ticketId}`);
@@ -244,38 +304,38 @@ async function viewTicketDetail(ticketId) {
     const commentsResponse = await fetch(`${API_URL}/tickets/${ticketId}/comments`);
     const comments = await commentsResponse.json();
 
+    // AI Önerileri (Sadece Admin ve Support görsün)
     let aiSuggestions = null;
-    
-    // Sadece Destek personeli veya Admin ise AI önerilerini çek
     if (['support', 'admin'].includes(currentUser.role)) {
         try {
-            const aiResponse = await fetch(`${API_URL}/tickets/${ticketId}/ai-suggestions`, {
-                method: 'POST'
-            });
-            if (aiResponse.ok) {
-                aiSuggestions = await aiResponse.json();
-            }
-        } catch (e) {
-            console.error("AI servisi hatası:", e);
-        }
+            const aiResponse = await fetch(`${API_URL}/tickets/${ticketId}/ai-suggestions`, { method: 'POST' });
+            if (aiResponse.ok) aiSuggestions = await aiResponse.json();
+        } catch (e) { console.error("AI Hatası:", e); }
     }
 
-    renderTicketDetail(ticket, comments, aiSuggestions);
+    // Support Staff Listesi (Sadece Departman Yöneticisi için)
+    let supportStaff = [];
+    if (currentUser.role === 'department') {
+        try {
+             // Kullanıcının kendi departmanındaki destekçileri çek
+            const staffResp = await fetch(`${API_URL}/users/support/${currentUser.department_id}`);
+            if (staffResp.ok) supportStaff = await staffResp.json();
+        } catch (e) { console.error("Personel çekilemedi", e); }
+    }
+
+    renderTicketDetail(ticket, comments, aiSuggestions, supportStaff);
     showSection('ticket-detail');
   } catch (error) {
     console.error('Error loading ticket detail:', error);
   }
 }
 
-function renderTicketDetail(ticket, comments, aiSuggestions) {
+function renderTicketDetail(ticket, comments, aiSuggestions, supportStaff) {
   const statusText = getStatusText(ticket.status);
   const priorityText = getPriorityText(ticket.priority);
   const statusBadgeClass = `badge-${ticket.status}`;
   const priorityBadgeClass = `badge-${ticket.priority}`;
   
-  // Destek personeli mi kontrolü
-  const isSupport = ['support', 'admin', 'department'].includes(currentUser.role);
-
   let html = `
     <div class="ticket-detail-header">
       <div>
@@ -288,39 +348,55 @@ function renderTicketDetail(ticket, comments, aiSuggestions) {
     </div>
   `;
 
-  // === AI VE DESTEK PANELİ (SADECE DESTEK PERSONELİ İÇİN) ===
-  if (isSupport) {
+  // === ROL BAZLI PANEL ===
+  
+  // 1. Durum: DEPARTMAN YÖNETİCİSİ (Atama Yapar)
+  if (currentUser.role === 'department') {
       html += `
-      <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bce0fd;">
-          <h3 style="color: #2980b9; margin-bottom: 10px;">🤖 Destek Yönetim Paneli</h3>
+      <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeeba;">
+          <h3 style="color: #856404; margin-bottom: 10px;">👔 Departman Yönetimi</h3>
+          <p>Bu görevi bir personele atayın:</p>
+          <div style="display: flex; gap: 10px;">
+              <select id="assign-support" class="form-control">
+                  <option value="">-- Personel Seç --</option>
+                  ${supportStaff.map(s => `<option value="${s.id}" ${ticket.assigned_to === s.id ? 'selected' : ''}>${s.email}</option>`).join('')}
+              </select>
+              <button onclick="assignTicket(${ticket.id})" class="btn btn-primary">Atama Yap</button>
+          </div>
+      </div>`;
+  }
+
+  // 2. Durum: DESTEK PERSONELİ (İş Yapar)
+  if (currentUser.role === 'support' || currentUser.role === 'admin') {
+      html += `
+      <div style="background-color: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+          <h3 style="color: #155724; margin-bottom: 10px;">🛠️ Destek İşlemleri</h3>
           
           ${aiSuggestions ? `
-            <div style="margin-bottom: 15px; background: white; padding: 10px; border-radius: 4px;">
-                <strong>AI Özeti:</strong> ${aiSuggestions.summary || 'Özet oluşturulamadı.'}<br>
-                <hr style="margin: 5px 0; border: 0; border-top: 1px solid #eee;">
-                <strong>Önerilen Cevap:</strong>
-                <div style="font-style: italic; color: #555;">"${aiSuggestions.response_draft || 'Taslak yok'}"</div>
+            <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9rem;">
+                <strong>🤖 AI Özeti:</strong> ${aiSuggestions.summary || 'Yok'}<br>
+                <strong>📝 Taslak Cevap:</strong> <i>"${aiSuggestions.response_draft || 'Yok'}"</i>
             </div>
           ` : ''}
 
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <select id="update-status" class="form-control" style="padding: 5px;">
+              <label>Durum:</label>
+              <select id="update-status" class="form-control">
                   <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Açık</option>
-                  <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>Devam Eden</option>
-                  <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Çözüldü (Bildirim Gider)</option>
-                  <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Kapalı</option>
+                  <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>İşlemde</option>
+                  <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Çözüldü</option>
               </select>
 
-              <select id="update-priority" class="form-control" style="padding: 5px;">
+              <label>Öncelik:</label>
+              <select id="update-priority" class="form-control">
                   <option value="low" ${ticket.priority === 'low' ? 'selected' : ''}>Düşük</option>
                   <option value="medium" ${ticket.priority === 'medium' ? 'selected' : ''}>Orta</option>
                   <option value="high" ${ticket.priority === 'high' ? 'selected' : ''}>Yüksek</option>
               </select>
 
-              <button onclick="updateTicketStatus(${ticket.id})" class="btn btn-success" style="padding: 5px 15px;">Güncelle</button>
+              <button onclick="updateTicketStatus(${ticket.id})" class="btn btn-success">Güncelle</button>
           </div>
-      </div>
-      `;
+      </div>`;
   }
 
   html += `
@@ -330,12 +406,12 @@ function renderTicketDetail(ticket, comments, aiSuggestions) {
         <div class="info-value">${ticket.category || 'Belirtilmemis'}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Olusturulma Tarihi</div>
-        <div class="info-value">${new Date(ticket.created_at).toLocaleDateString('tr-TR')}</div>
+        <div class="info-label">Atanan Personel ID</div>
+        <div class="info-value">${ticket.assigned_to || 'Henüz atanmadı'}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Son Guncelleme</div>
-        <div class="info-value">${new Date(ticket.updated_at).toLocaleDateString('tr-TR')}</div>
+        <div class="info-label">Olusturulma Tarihi</div>
+        <div class="info-value">${new Date(ticket.created_at).toLocaleDateString('tr-TR')}</div>
       </div>
     </div>
 
@@ -369,7 +445,28 @@ function renderTicketDetail(ticket, comments, aiSuggestions) {
   document.getElementById('ticket-detail-content').innerHTML = html;
 }
 
-// Ticket Güncelleme Fonksiyonu
+// Departman Atama İşlemi
+async function assignTicket(ticketId) {
+    const assignedTo = document.getElementById('assign-support').value;
+    if (!assignedTo) return alert("Lütfen bir personel seçin!");
+
+    try {
+        const response = await fetch(`${API_URL}/tickets/${ticketId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assigned_to: assignedTo })
+        });
+
+        if (response.ok) {
+            alert("Atama başarıyla yapıldı!");
+            viewTicketDetail(ticketId);
+        }
+    } catch (error) {
+        console.error("Atama hatası:", error);
+    }
+}
+
+// Destek Durum Güncelleme İşlemi
 async function updateTicketStatus(ticketId) {
     const newStatus = document.getElementById('update-status').value;
     const newPriority = document.getElementById('update-priority').value;
@@ -387,14 +484,11 @@ async function updateTicketStatus(ticketId) {
 
         if (response.ok) {
             alert('Ticket güncellendi! ' + (newStatus === 'resolved' ? 'Kullanıcıya bildirim gönderildi.' : ''));
-            viewTicketDetail(ticketId); // Sayfayı yenile
-            loadDashboard(); // Dashboard sayılarını güncelle
-        } else {
-            alert('Güncelleme başarısız oldu.');
+            viewTicketDetail(ticketId);
+            loadDashboard();
         }
     } catch (error) {
         console.error('Error updating ticket:', error);
-        alert('Bir hata oluştu.');
     }
 }
 
