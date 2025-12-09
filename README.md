@@ -14,13 +14,6 @@
 
 ### Hafta 2 - AI & API Entegrasyonu
 - 🤖 **AI Destekli Kategori/Öncelik Önerisi** - OpenAI API ile otomatik sınıflandırma
-- 📧 **Harici Bildirim API'leri** - Email, Slack entegrasyonu
-- 🔄 **GitHub Workflow** - main, dev, feature branch'ları
-- 🚀 **CI Pipeline** - GitHub Actions ile otomatik test
-- 📊 **Logging Sistemi** - Tüm işlemlerin kaydedilmesi
-- 📈 **Departman Analitikleri** - İstatistikler ve raporlar
-
----
 
 ## 🚀 Hızlı Başlangıç
 
@@ -28,95 +21,6 @@
 - **Node.js** 16.x veya üzeri
 - **npm** 8.x veya üzeri
 - **Git** (opsiyonel, version control için)
-
-### Kurulum
-
-1. **Projeyi klonla veya indir**
-```bash
-git clone https://github.com/yourusername/CampuSupport.git
-cd CampuSupport
-```
-
-2. **Bağımlılıkları yükle**
-```bash
-npm install
-```
-
-3. **.env dosyası oluştur**
-```bash
-cp .env.example .env
-```
-
-4. **.env dosyasını düzenle** (API anahtarlarını ekle)
-```
-PORT=3000
-NODE_ENV=development
-OPENAI_API_KEY=your_openai_key_here
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_password
-```
-
-5. **Sunucuyu başlat**
-```bash
-npm start
-```
-
-Sunucu `http://localhost:3000` adresinde çalışacaktır.
-
----
-
-## 📝 Çalıştırma Komutları
-
-### Temel Komutlar
-
-```bash
-# Sunucuyu başlat (Production)
-npm start
-
-# Sunucuyu başlat (Development)
-npm run dev
-
-# Testleri çalıştır
-npm test
-
-# Unit testleri çalıştır
-npm run test:unit
-
-# Integration testleri çalıştır
-npm run test:integration
-
-# Kodu lint'le
-npm run lint
-
-# Linting hatalarını otomatik düzelt
-npm run lint:fix
-```
-
-### Veritabanı
-
-Veritabanı otomatik olarak `database.db` dosyasında oluşturulur. İlk çalıştırmada tablolar otomatik olarak oluşturulacaktır.
-
-**Veritabanını sıfırlamak için:**
-```bash
-rm database.db
-npm start
-```
-
-### Loglar
-
-Tüm işlemler `./logs/app.log` dosyasına kaydedilir:
-```bash
-# Logları gerçek zamanda izle
-tail -f logs/app.log
-
-# Son 50 satırı göster
-tail -50 logs/app.log
-
-# Belirli bir kelimeyi ara
-grep "error" logs/app.log
-```
-
----
 
 ## 🏗️ Proje Yapısı
 
@@ -176,24 +80,6 @@ CampuSupport/
 - `GET /api/departments/:id/analytics` - Departman analitikleri
 
 **Detaylı API dokümantasyonu için:** `API_DOCUMENTATION.md` dosyasını inceleyin.
-
----
-
-## 🤖 AI Özellikleri (Hafta 2)
-
-### Kategori Önerisi
-Yeni ticket açılırken, sistem otomatik olarak açıklamadan kategori önerir:
-```
-Giriş: "Yurt odasında Wi-Fi süreklı kopuyor"
-Çıkış: Kategori = "İnternet", Güven = 0.9
-```
-
-### Öncelik Önerisi
-Sistem otomatik olarak aciliyet derecesini belirler:
-```
-Giriş: "Acil! Bilgisayarım çalışmıyor"
-Çıkış: Öncelik = "Yüksek", Güven = 0.85
-```
 
 ### Özet Oluşturma
 Ticket açıklamasından otomatik özet çıkarılır.
@@ -356,37 +242,7 @@ Error: OpenAI API key not found
 2. Feature branch oluştur (`git checkout -b feature/AmazingFeature`)
 3. Değişiklikleri commit'le (`git commit -m 'Add some AmazingFeature'`)
 4. Branch'a push'la (`git push origin feature/AmazingFeature`)
-5. Pull Request oluştur
-
----
-
-## 📄 Lisans
-
-Bu proje ISC lisansı altında yayınlanmıştır.
-
----
-
-## 📞 İletişim
-
-Sorularınız veya önerileriniz için:
-- 📧 Email: support@campusupport.com
-- 🐛 Issues: GitHub Issues
-- 💬 Discussions: GitHub Discussions
-
----
-
-## 🎯 Gelecek Özellikler
-
-- [ ] Real-time notifications (WebSocket)
-- [ ] Mobile app
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] Video/file upload support
-- [ ] Automated ticket routing
-- [ ] SLA management
-- [ ] Knowledge base integration
-
----
+5. Pull Request oluştu
 
 ## 📝 Sürüm Tarihi
 
@@ -399,6 +255,3 @@ Sorularınız veya önerileriniz için:
 
 **Son Güncelleme:** 2024-12-09
 
-**Geliştirici:** CampuSupport Team
-
-**Status:** 🟢 Active Development
