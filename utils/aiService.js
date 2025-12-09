@@ -1,4 +1,5 @@
 // Basit AI Simülasyonu
+
 exports.suggestCategory = async (description) => {
     const desc = description.toLowerCase();
     if (desc.includes('wifi') || desc.includes('internet')) return { category: 'Wi-Fi/Internet', confidence: 0.9 };
@@ -18,5 +19,6 @@ exports.generateSummary = async (description) => {
 };
 
 exports.generateResponseDraft = async (description, category) => {
-    return Merhaba, ${category} konusundaki probleminizi inceledik. İlgili birim yönlendirildi.;
+    // DÜZELTME: 21. Satır backtick (`) içine alındı.
+    return `Merhaba, ${category} konusundaki probleminizi inceledik. İlgili birim yönlendirildi.`;
 };
