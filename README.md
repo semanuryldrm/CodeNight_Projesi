@@ -179,7 +179,7 @@ CampuSupport/
 
 ---
 
-## 🤖 AI Özellikleri (Hafta 2)
+## 🤖 AI Özellikleri (Bölüm 2)
 
 ### Kategori Önerisi
 Yeni ticket açılırken, sistem otomatik olarak açıklamadan kategori önerir:
@@ -203,7 +203,7 @@ Support personeli için AI tarafından oluşturulmuş cevap taslağı sunulur.
 
 ---
 
-## 📧 Bildirim Sistemi (Hafta 2)
+## 📧 Bildirim Sistemi (Bölüm 2)
 
 ### Desteklenen Kanallar
 - 📧 Email
@@ -217,7 +217,7 @@ Support personeli için AI tarafından oluşturulmuş cevap taslağı sunulur.
 
 ---
 
-## 📊 Logging Sistemi (Hafta 2)
+## 📊 Logging Sistemi (Bölüm 2)
 
 Tüm önemli işlemler ./logs/app.log dosyasına kaydedilir:
 
@@ -229,7 +229,7 @@ Tüm önemli işlemler ./logs/app.log dosyasına kaydedilir:
 
 ---
 
-## 🔄 Git Workflow (Hafta 2)
+## 🔄 Git Workflow (Bölüm 2)
 
 ### Branch Yapısı
 
@@ -260,7 +260,7 @@ chore: update dependencies
 
 ---
 
-## 🧪 Testing (Hafta 2)
+## 🧪 Testing (Bölüm 2)
 
 ### Test Çalıştırma
 bash
@@ -358,20 +358,6 @@ Error: OpenAI API key not found
 4. Branch'a push'la (git push origin feature/AmazingFeature)
 5. Pull Request oluştur
 
----
-
-## 📄 Lisans
-
-Bu proje ISC lisansı altında yayınlanmıştır.
-
----
-
-## 📞 İletişim
-
-Sorularınız veya önerileriniz için:
-- 📧 Email: support@campusupport.com
-- 🐛 Issues: GitHub Issues
-- 💬 Discussions: GitHub Discussions
 
 ---
 
@@ -392,5 +378,5 @@ Sorularınız veya önerileriniz için:
 
 | Versiyon | Tarih | Açıklama |
 |----------|-------|----------|
-| 1.0.0 | 2024-12-08 | Hafta 1 - Temel Ticket Sistemi |
-| 2.0.0 | 2024-12-09 | Hafta 2 - AI & API Entegrasyonu |
+| 1.0.0 | 2024-12-08 | Bölüm 1 - Temel Ticket Sistemi |
+| 2.0.0 | 2024-12-09 | Bölüm 2 - AI & API Entegrasyonu |
