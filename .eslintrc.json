@@ -1,18 +1,25 @@
-{
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true,
-        "node": true,
-        "jest": true
+module.exports = {
+    // Çalışacağı ortamlar
+    env: {
+        browser: true,    // tarayıcı ortamı
+        commonjs: true,   // CommonJS modül sistemi (require)
+        es2021: true,     // ES2021 özellikleri
+        node: true,       // Node.js ortamı
+        jest: true        // Jest test framework
     },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": "latest"
+
+    // Temel ESLint kurallar seti
+    extends: "eslint:recommended",
+
+    // JS sürümü / parser ayarları
+    parserOptions: {
+        ecmaVersion: "latest" // en güncel ECMAScript
     },
-    "rules": {
-        "no-unused-vars": "warn",
-        "no-console": "off",
-        "no-undef": "error"
+
+    // Kişisel kurallar
+    rules: {
+        "no-unused-vars": "warn", // kullanılmayan değişkenler uyarı
+        "no-console": "off",      // console.log kullanımına izin
+        "no-undef": "error"       // tanımsız değişken hatası ver
     }
-}
+};
