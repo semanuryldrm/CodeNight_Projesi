@@ -3,7 +3,7 @@
  * Hafta 2: Unit ve Integration Testleri
  */
 
-// TEST SENARYOLARI (Senin gönderdiğin veri yapısı)
+// TEST SENARYOLARI 
 const testSuite = {
   // Authentication Tests
   authentication: {
