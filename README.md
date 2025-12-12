@@ -118,7 +118,7 @@ grep "error" logs/app.log
 
 ---
 
-## 🏗️ Proje Yapısı
+##Proje Yapısı
 
 ```
 CampuSupport/
